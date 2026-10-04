@@ -43,7 +43,8 @@
         chmod -R u+w source
         cd source
         bash scripts/check-policy
-        fstar.exe generated/Chapter01/While.fst
+        fstar.exe --include generated/Chapter01 \
+          generated/Chapter01/ReachingDefinitions.fst
         touch "$out"
       '';
 

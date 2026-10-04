@@ -24,3 +24,25 @@
   `7bbcb5fa68a6581d7c379e39af0a38316de1e41f`, the exact runtime admitted by
   the recorded Latte frontend. The generated module verifies there while
   tactics are disabled.
+
+## 2026-10-04 — assignment soundness is evidence construction
+
+- Added the Section 1.3 definition domain, entry state, kill, gen, assignment,
+  last-writer state, and coverage relation as type families rather than
+  solver-facing propositions.
+- `different` has exactly the six unequal pairs of the three-variable WHILE
+  language. `variable_comparison(left, right)` returns either indexed sameness
+  or one of those six witnesses. The exhaustive nine-case decision is isolated
+  in `compare_variables`; the soundness construction therefore retains only
+  its two meaningful branches.
+- In the same-variable branch, `assignment_sound` constructs the generated
+  definition from two `Reflexive` values. In the different-variable branch it
+  constructs the preserved definition from the explicit difference witness
+  and the incoming coverage function. `generated_present` and
+  `other_preserved` expose those two constructor terms separately.
+- Generic `both` and `either` initially used implicit type parameters. The
+  emitted F* constructors could not reconstruct an unused alternative type
+  from `Left` or `Right`, so they now take explicit type parameters. This is a
+  frontend surface constraint, not a mathematical axiom.
+- The generated dependency pair verifies under the pinned F* runtime with
+  tactics disabled and no `Lemma`, `squash`, or admission surface.

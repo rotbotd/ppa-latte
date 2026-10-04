@@ -41,8 +41,14 @@ whose only constructor is `Reflexive`.
 
 `src/Chapter01/While.lt` defines the labelled WHILE language, states, expression
 evaluation, explicit equality evidence, the relational big-step semantics, and
-the six-label reaching-definitions program from Section 1.3. The next slice
-derives assignment's kill/gen transfer from the concrete semantics.
+the six-label reaching-definitions program from Section 1.3.
+
+`src/Chapter01/ReachingDefinitions.lt` then states kill/gen as a family of
+evidence types and constructs the local assignment soundness map. A
+`variable_comparison(left, right)` contains either the fact that the variables
+are the same or one of the six concrete ways they differ. Consequently
+`assignment_sound` has the mathematical two branches—generate or preserve—
+without asking an equality decider or transport tactic to write either proof.
 
 ## Local checks
 
@@ -58,4 +64,5 @@ file with:
 
 ```console
 LATTE_CLI=/absolute/path/to/latte.cjs ./scripts/regenerate src/Chapter01/While.lt
+LATTE_CLI=/absolute/path/to/latte.cjs ./scripts/regenerate src/Chapter01/ReachingDefinitions.lt
 ```
