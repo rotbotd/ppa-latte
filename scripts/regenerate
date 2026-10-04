@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+  printf 'usage: LATTE_CLI=/path/to/latte.cjs %s source.lt\n' "$0" >&2
+  exit 64
+fi
+
+: "${LATTE_CLI:?set LATTE_CLI to the pinned Latte CLI bundle}"
+
+source_file=$1
+case "$source_file" in
+  src/*.lt) ;;
+  *) printf 'source must be beneath src/: %s\n' "$source_file" >&2; exit 64 ;;
+esac
+
+relative=${source_file#src/}
+output="generated/${relative%.lt}.fst"
+mkdir -p "$(dirname "$output")"
+node "$LATTE_CLI" emit-fstar "$source_file" >"$output"
+

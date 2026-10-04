@@ -1,0 +1,229 @@
+verification default = {
+  tactics: disabled,
+}
+
+type label = nat
+
+enum variable {
+  X,
+  Y,
+  Z,
+}
+
+enum arithmetic_operator {
+  Add,
+  Subtract,
+  Multiply,
+}
+
+enum relation_operator {
+  Equal,
+  Less,
+  LessEqual,
+}
+
+#[noeq]
+enum arithmetic_expression {
+  Variable(name: variable),
+  Integer(value: int),
+  Arithmetic(
+    operation: arithmetic_operator,
+    left: arithmetic_expression,
+    right: arithmetic_expression
+  ),
+}
+
+#[noeq]
+enum boolean_expression {
+  True,
+  False,
+  Not(body: boolean_expression),
+  And(left: boolean_expression, right: boolean_expression),
+  Relation(
+    operation: relation_operator,
+    left: arithmetic_expression,
+    right: arithmetic_expression
+  ),
+}
+
+#[noeq]
+enum statement {
+  Assign(mark: label, name: variable, value: arithmetic_expression),
+  Skip(mark: label),
+  Sequence(first: statement, second: statement),
+  If(
+    mark: label,
+    guard: boolean_expression,
+    yes: statement,
+    no: statement
+  ),
+  While(mark: label, guard: boolean_expression, body: statement),
+}
+
+type state = variable => int
+
+function write(current: state, written: variable, value: int): state {
+  queried => if queried = written { value } else { current(queried) }
+}
+
+function apply_arithmetic(
+  operation: arithmetic_operator,
+  left: int,
+  right: int
+): int {
+  match operation {
+    Add => left + right,
+    Subtract => left - right,
+    Multiply => left * right,
+  }
+}
+
+function! evaluate_arithmetic(
+  expression: arithmetic_expression,
+  current: state
+): int
+  decreases expression
+{
+  match expression {
+    Variable(name) => current(name),
+    Integer(value) => value,
+    Arithmetic(operation, left, right) =>
+      apply_arithmetic(
+        operation,
+        evaluate_arithmetic(left, current),
+        evaluate_arithmetic(right, current)
+      ),
+  }
+}
+
+function apply_relation(
+  operation: relation_operator,
+  left: int,
+  right: int
+): bool {
+  match operation {
+    Equal => left = right,
+    Less => left < right,
+    LessEqual => left <= right,
+  }
+}
+
+function! evaluate_boolean(
+  expression: boolean_expression,
+  current: state
+): bool
+  decreases expression
+{
+  match expression {
+    True => true,
+    False => false,
+    Not(body) => !evaluate_boolean(body, current),
+    And(left, right) =>
+      evaluate_boolean(left, current) && evaluate_boolean(right, current),
+    Relation(operation, left, right) =>
+      apply_relation(
+        operation,
+        evaluate_arithmetic(left, current),
+        evaluate_arithmetic(right, current)
+      ),
+  }
+}
+
+#[noeq]
+enum equality<a: Type>: (left: a, right: a) => Type {
+  Reflexive(value: a): equality(value, value),
+}
+
+#[noeq]
+enum big_step: (program: statement, before: state, after: state) => Type {
+  BigStepAssign(
+    mark: label,
+    name: variable,
+    value: arithmetic_expression,
+    current: state
+  ):
+    big_step(
+      Assign(mark, name, value),
+      current,
+      write(current, name, evaluate_arithmetic(value, current))
+    )
+  ,
+  BigStepSkip(mark: label, current: state):
+    big_step(Skip(mark), current, current)
+  ,
+  BigStepSequence(
+    first: statement,
+    second: statement,
+    before: state,
+    middle: state,
+    after: state,
+    first_step: big_step(first, before, middle),
+    second_step: big_step(second, middle, after)
+  ):
+    big_step(Sequence(first, second), before, after)
+  ,
+  BigStepIfTrue(
+    mark: label,
+    guard: boolean_expression,
+    yes: statement,
+    no: statement,
+    before: state,
+    after: state,
+    guard_true: equality(evaluate_boolean(guard, before), true),
+    branch: big_step(yes, before, after)
+  ):
+    big_step(If(mark, guard, yes, no), before, after)
+  ,
+  BigStepIfFalse(
+    mark: label,
+    guard: boolean_expression,
+    yes: statement,
+    no: statement,
+    before: state,
+    after: state,
+    guard_false: equality(evaluate_boolean(guard, before), false),
+    branch: big_step(no, before, after)
+  ):
+    big_step(If(mark, guard, yes, no), before, after)
+  ,
+  BigStepWhileFalse(
+    mark: label,
+    guard: boolean_expression,
+    body: statement,
+    before: state,
+    guard_false: equality(evaluate_boolean(guard, before), false)
+  ):
+    big_step(While(mark, guard, body), before, before)
+  ,
+  BigStepWhileTrue(
+    mark: label,
+    guard: boolean_expression,
+    body: statement,
+    before: state,
+    middle: state,
+    after: state,
+    guard_true: equality(evaluate_boolean(guard, before), true),
+    body_step: big_step(body, before, middle),
+    rest_step: big_step(While(mark, guard, body), middle, after)
+  ):
+    big_step(While(mark, guard, body), before, after)
+}
+
+const reaching_example =
+  Sequence(
+    Assign(1, Y, Variable(X)),
+    Sequence(
+      Assign(2, Z, Integer(1)),
+      Sequence(
+        While(
+          3,
+          Relation(Less, Integer(0), Variable(Y)),
+          Sequence(
+            Assign(4, Z, Arithmetic(Multiply, Variable(Z), Variable(Y))),
+            Assign(5, Y, Arithmetic(Subtract, Variable(Y), Integer(1)))
+          )
+        ),
+        Assign(6, Y, Integer(0))
+      )
+    )
+  )
