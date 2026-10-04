@@ -72,3 +72,27 @@
   decidable leaves, so F* can and should expose structural equality for them.
   `noeq` remains on evidence families and generic evidence containers whose
   fields include functions, recursive derivations, or arbitrary `Type`s.
+
+## 2026-10-04 — the local transfer proof reaches whole executions
+
+- Added `reaching_analysis(program, before, after)`, a syntax-directed analysis
+  judgment. Assignment fixes `after` to kill/gen; skip preserves the set;
+  sequence threads a middle set; an `if` joins the branch outputs.
+- A loop plan carries entry inclusion into a proposed head invariant, analysis
+  of the body from that invariant, and back-edge inclusion from the body output
+  into the same invariant. This expresses the post-fixpoint obligation needed
+  by the soundness proof without pretending a solver computed the fixpoint.
+- `analysis_sound` recursively consumes both an analysis plan and an
+  instrumented execution. The assignment case is the earlier
+  `assignment_sound` constructor program. The branch cases inject the taken
+  result into the union. The true-loop case proves the body from the head,
+  applies the back-edge inclusion, then recursively checks the remaining
+  iterations using a reflexive head-to-head loop plan.
+- The first loop attempt incorrectly reused the original `before -> head` plan
+  for remaining iterations, even though those iterations begin at `head`.
+  F* rejected the call because it had coverage of `head` where coverage of
+  `before` was requested. Constructing the recursive `head -> head` plan makes
+  the invariant boundary explicit and discharged the exact error.
+- The result is soundness at the entry and exit of every syntax node for
+  terminating derivations. It still does not publish a label-indexed table for
+  the six-label example or quantify over prefixes of divergent execution.

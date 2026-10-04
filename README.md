@@ -61,8 +61,16 @@ invent an execution.
 This is still terminating big-step semantics. It is enough to connect an
 entry-to-exit reaching-definitions claim to completed executions. A theorem
 about every intermediate point of a diverging run will need small-step or
-trace-producing semantics; the label-indexed analysis solution and its loop
-fixpoint invariant are also not yet formalized.
+trace-producing semantics.
+
+`src/Chapter01/AnalysisSoundness.lt` defines the syntax-directed analysis
+judgment and proves its terminating-execution soundness. Assignment uses the
+existing kill/gen construction; conditionals inject the taken branch into the
+join; and a loop carries three explicit pieces: entry inclusion into the loop
+head, an analysis of the body from that head, and back-edge inclusion into the
+same head. The true-loop proof runs the body, restores coverage of the head
+invariant, and recurs on the remaining iterations. The concrete label-indexed
+solution for the six-label example remains to be constructed.
 
 ## Local checks
 
@@ -80,4 +88,5 @@ file with:
 LATTE_CLI=/absolute/path/to/latte.cjs ./scripts/regenerate src/Chapter01/While.lt
 LATTE_CLI=/absolute/path/to/latte.cjs ./scripts/regenerate src/Chapter01/ReachingDefinitions.lt
 LATTE_CLI=/absolute/path/to/latte.cjs ./scripts/regenerate src/Chapter01/InstrumentedSemantics.lt
+LATTE_CLI=/absolute/path/to/latte.cjs ./scripts/regenerate src/Chapter01/AnalysisSoundness.lt
 ```
