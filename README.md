@@ -50,6 +50,20 @@ are the same or one of the six concrete ways they differ. Consequently
 `assignment_sound` has the mathematical two branches—generate or preserve—
 without asking an equality decider or transport tactic to write either proof.
 
+`src/Chapter01/InstrumentedSemantics.lt` repairs the missing semantic link:
+execution now threads both an ordinary store and the label of the last
+assignment to each variable. Its assignment rule updates those two objects in
+lockstep, while sequencing, conditionals, and loops pass the writer map through
+the path actually taken. `forget_writers` recursively erases that instrument
+and constructs an ordinary `big_step` derivation, so instrumentation cannot
+invent an execution.
+
+This is still terminating big-step semantics. It is enough to connect an
+entry-to-exit reaching-definitions claim to completed executions. A theorem
+about every intermediate point of a diverging run will need small-step or
+trace-producing semantics; the label-indexed analysis solution and its loop
+fixpoint invariant are also not yet formalized.
+
 ## Local checks
 
 The public flake checks repository structure, the generated-view policy, and
@@ -65,4 +79,5 @@ file with:
 ```console
 LATTE_CLI=/absolute/path/to/latte.cjs ./scripts/regenerate src/Chapter01/While.lt
 LATTE_CLI=/absolute/path/to/latte.cjs ./scripts/regenerate src/Chapter01/ReachingDefinitions.lt
+LATTE_CLI=/absolute/path/to/latte.cjs ./scripts/regenerate src/Chapter01/InstrumentedSemantics.lt
 ```

@@ -6,6 +6,8 @@ test -s src/Chapter01/While.lt
 test -s generated/Chapter01/While.fst
 test -s src/Chapter01/ReachingDefinitions.lt
 test -s generated/Chapter01/ReachingDefinitions.fst
+test -s src/Chapter01/InstrumentedSemantics.lt
+test -s generated/Chapter01/InstrumentedSemantics.fst
 
 grep -Fq 'tactics: disabled' src/Chapter01/While.lt
 

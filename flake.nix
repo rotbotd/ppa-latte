@@ -44,7 +44,7 @@
         cd source
         bash scripts/check-policy
         fstar.exe --include generated/Chapter01 \
-          generated/Chapter01/ReachingDefinitions.fst
+          generated/Chapter01/InstrumentedSemantics.fst
         touch "$out"
       '';
 

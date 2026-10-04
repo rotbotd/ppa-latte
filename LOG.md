@@ -46,3 +46,24 @@
   frontend surface constraint, not a mathematical axiom.
 - The generated dependency pair verifies under the pinned F* runtime with
   tactics disabled and no `Lemma`, `squash`, or admission surface.
+
+## 2026-10-04 — executions carry their last writers
+
+- The original big-step relation exposes the labels in source syntax but
+  returns only a final store. That is too weak to state semantic soundness for
+  reaching definitions: the analysis concerns which labelled assignment most
+  recently wrote each variable along an execution.
+- Added `instrumented_big_step`, indexed by both before/after stores and
+  before/after last-writer maps. Assignment changes the store and records its
+  label; skip preserves both; sequence, conditionals, and loops thread the map
+  through the branch and iterations actually executed.
+- Added `forget_writers`, a structural recursion over instrumented evidence
+  which constructs the corresponding ordinary `big_step` evidence. The writer
+  instrumentation therefore refines rather than replaces the existing
+  semantics.
+- This semantics observes the exit of terminating executions. It does not yet
+  state coverage at every labelled program point or observe prefixes of a
+  diverging execution. The next proof boundary is a label-indexed analysis
+  solution whose loop-head fixpoint is preserved by every terminating
+  execution; a genuinely prefix-sensitive theorem will still require a
+  small-step or trace-producing relation.
