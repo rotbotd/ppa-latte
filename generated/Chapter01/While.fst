@@ -19,19 +19,19 @@ type relation_operator =
 | Less: relation_operator
 | LessEqual: relation_operator
 
-noeq type arithmetic_expression =
+type arithmetic_expression =
 | Variable: name: variable -> arithmetic_expression
 | Integer: value: int -> arithmetic_expression
 | Arithmetic: operation: arithmetic_operator -> left: arithmetic_expression -> right: arithmetic_expression -> arithmetic_expression
 
-noeq type boolean_expression =
+type boolean_expression =
 | True: boolean_expression
 | False: boolean_expression
 | Not: body: boolean_expression -> boolean_expression
 | And: left: boolean_expression -> right: boolean_expression -> boolean_expression
 | Relation: operation: relation_operator -> left: arithmetic_expression -> right: arithmetic_expression -> boolean_expression
 
-noeq type statement =
+type statement =
 | Assign: mark: label -> name: variable -> value: arithmetic_expression -> statement
 | Skip: mark: label -> statement
 | Sequence: first: statement -> second: statement -> statement

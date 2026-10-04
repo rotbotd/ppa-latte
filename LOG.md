@@ -67,3 +67,8 @@
   solution whose loop-head fixpoint is preserved by every terminating
   execution; a genuinely prefix-sensitive theorem will still require a
   small-step or trace-producing relation.
+- Removed the blanket `noeq` qualifier from arithmetic expressions, boolean
+  expressions, and statements. Those are computational syntax trees with
+  decidable leaves, so F* can and should expose structural equality for them.
+  `noeq` remains on evidence families and generic evidence containers whose
+  fields include functions, recursive derivations, or arbitrary `Type`s.

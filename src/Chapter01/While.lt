@@ -22,7 +22,6 @@ enum relation_operator {
   LessEqual,
 }
 
-#[noeq]
 enum arithmetic_expression {
   Variable(name: variable),
   Integer(value: int),
@@ -33,7 +32,6 @@ enum arithmetic_expression {
   ),
 }
 
-#[noeq]
 enum boolean_expression {
   True,
   False,
@@ -46,7 +44,6 @@ enum boolean_expression {
   ),
 }
 
-#[noeq]
 enum statement {
   Assign(mark: label, name: variable, value: arithmetic_expression),
   Skip(mark: label),
